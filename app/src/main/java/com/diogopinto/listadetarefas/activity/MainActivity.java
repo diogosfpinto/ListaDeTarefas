@@ -1,6 +1,8 @@
 package com.diogopinto.listadetarefas.activity;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -24,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private AdapterListaTarefas tarefaAdapter;
     private List<Tarefa> listaTarefas = new ArrayList<>();
+    private Tarefa tarefaSelecionada;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +71,29 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onLongItemClick(View view, int position) {
-                                Log.i("clique", "onLongItemClick");
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+
+                                tarefaSelecionada = listaTarefas.get(position);
+                                //configura o titulo e mesg
+                                dialog.setTitle("Confirmar Exclusão");
+                                dialog.setMessage("Deseja excluir a tarefa "+tarefaSelecionada.getNomeTarefa()+"?");
+                                dialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        TarefaDAO tarefaDAO = new TarefaDAO(getApplicationContext());
+                                        if (tarefaDAO.deletar(tarefaSelecionada)){
+                                            onStart();
+                                            Toast.makeText(getApplicationContext(), "Sucesso ao remover tarefa!",
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), "Erro ao remover tarefa!",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                                dialog.setNegativeButton("Não", null);
+                                dialog.create();
+                                dialog.show();
                             }
 
                             @Override
@@ -99,12 +125,10 @@ public class MainActivity extends AppCompatActivity {
         TarefaDAO tarefaDAO = new TarefaDAO(getApplicationContext());
         listaTarefas = tarefaDAO.listar();
         //configurar um adapter
-
         tarefaAdapter = new AdapterListaTarefas(listaTarefas);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), LinearLayout.VERTICAL));
         recyclerView.setAdapter(tarefaAdapter);
     }
 

@@ -57,7 +57,7 @@ public class AdicionarTarefaActivity extends AppCompatActivity {
                     tarefa.setNomeTarefa(textTarefa.getText().toString());
                     if (!tarefa.getNomeTarefa().isEmpty()){
                         tarefa.setId(tarefaAtual.getId());
-                        tarefa.setNomeTarefa(tarefaAtual.getNomeTarefa());
+                        tarefa.setNomeTarefa(tarefa.getNomeTarefa());
                         if (tarefaDAO.atualizar(tarefa)){
                             finish();
                             Toast.makeText(getApplicationContext(), "Sucesso ao atualizar tarefa!",
